@@ -1,0 +1,9 @@
+[Unit]
+Description=LCD Daemon
+
+[Service]
+User=pi
+ExecStart=/home/pi/lcd-daemon/lcd-daemon.py
+
+[Install]
+WantedBy=multi-user.target
