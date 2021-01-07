@@ -50,7 +50,8 @@ class LcdDaemon():
 
         if self._printer is None:
             self.set_message(1, "Oleandri Printer")
-            self.set_message(2, "... starting ...")
+            dots = "." * (counter + 1)
+            self.set_message(2, dots + " starting " + dots)
             return
 
         state = self._printer["state"]
@@ -96,10 +97,17 @@ class LcdDaemon():
                 self.set_message(2, "Bed: %2.0fC%s" % (bed_temp, '' if bed_target in [ None, 0.0 ] else '/%2.0fC' % bed_target))
             else:
                 if progress is not None:
-                    nboxes = round(progress["completion"] / 100.0 * 16.0)
-                    self.set_message(2, "#" * nboxes + ">")
+                    nboxes = round(progress["completion"] / 100.0 * 15.0) + 1
+                    # We do this by hand, since non-ASCII characters are
+                    # not exposed by lcddriver
+                    self._lcd.lcd_write(0xC0)
+                    for i in range(nboxes):
+                        self._lcd.lcd_write(0xFF, lcddriver.Rs)
+                    self._lcd.lcd_write(ord('>'), lcddriver.Rs)
+                    for i in range(16 - nboxes - 1):
+                        self._lcd.lcd_write(ord(' '), lcddriver.Rs)
                 else:
-                    self.set_message(2, "----------------")
+                    self.set_message(2, "No print started")
         except:
             return
 
