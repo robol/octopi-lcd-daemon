@@ -3,6 +3,7 @@ Description=LCD Daemon
 
 [Service]
 User=pi
+WorkingDirectory=/home/pi/lcd-daemon
 ExecStart=/home/pi/lcd-daemon/lcd-daemon.py
 
 [Install]
