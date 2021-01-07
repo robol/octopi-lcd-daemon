@@ -9,6 +9,22 @@ class LcdDaemon():
     def __init__(self):
         self._lcd = lcddriver.lcd()
         self._lcd.lcd_clear()
+        self.define_symbols()
+
+    def define_symbols(self):
+        # Select 0x00 in CGRAM
+        self._lcd.lcd_write(0x00 | lcddriver.LCD_SETCGRAMADDR)
+        # Write the custom symbol
+        clock = [ 0b00001110, \
+                  0b00000100, \
+                  0b00001110, \
+                  0b00010101, \
+                  0b00010111, \
+                  0b00010001, \
+                  0b00001110 ]
+
+        for row in clock:
+            self._lcd.lcd_write(row, lcddriver.Rs)
 
     def update_jobs(self):
         try:
@@ -74,8 +90,7 @@ class LcdDaemon():
                     hours = int((printTimeLeft - secs - mins * 60) / 3600)
                     printTimeLeftS = "%d:%2s:%2s" % (hours, str(mins).zfill(2), str(secs).zfill(2))
 
-            printTimeLeftS = "> " + printTimeLeftS
-
+            printTimeLeftS = "\x00 " + printTimeLeftS
             progress_msg = "%2.1f%% %s" % (progress["completion"], printTimeLeftS.rjust(10))
             self.set_message(1, progress_msg)
         else:
