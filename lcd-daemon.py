@@ -36,8 +36,8 @@ class LcdDaemon():
                 0b00111, \
                 0b01000, \
                 0b01000, \
-                0b01000, \
-                0b00111 ]
+                0b00111, \
+                0b00000 ]
         self.save_symbol(0x08, deg)
 
     def save_symbol(self, address, rows):
@@ -126,9 +126,9 @@ class LcdDaemon():
             tool_target = temps["tool0"]["target"]
             bed_target = temps["bed"]["target"]
             if counter == 0:
-                self.set_message(2, "Tool: %3.0f\x01%s" % (tool_temp, '' if tool_target in [ None, 0.0 ] else '/%3.0fC' % tool_target))
+                self.set_message(2, "Tool: %3.0f\x01%s" % (tool_temp, '' if tool_target in [ None, 0.0 ] else '/%3.0f\x01' % tool_target))
             elif counter == 1:
-                self.set_message(2, "Bed: %2.0f\x01%s" % (bed_temp, '' if bed_target in [ None, 0.0 ] else '/%2.0fC' % bed_target))
+                self.set_message(2, "Bed: %2.1f\x01%s" % (bed_temp, '' if bed_target in [ None, 0.0 ] else '/%2.1f\x01' % bed_target))
             else:
                 if progress is not None:
                     nboxes = round(progress["completion"] / 100.0 * 15.0) + 1
