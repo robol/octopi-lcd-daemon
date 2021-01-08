@@ -28,7 +28,8 @@ class LcdDaemon():
                   0b00010101, \
                   0b00010111, \
                   0b00010001, \
-                  0b00001110 ]
+                  0b00001110, \
+                  0b00000000 ]
         self.save_symbol(0x00, clock)
 
         deg = [ 0b11000, \
@@ -87,7 +88,8 @@ class LcdDaemon():
         if self._printer is None:
             self.set_message(1, "Oleandri Printer")
             dots = "." * (counter + 1)
-            self.set_message(2, dots + " starting " + dots)
+            spaces = " " * (2 - counter)
+            self.set_message(2, spaces + dots + " starting " + dots)
             return
 
         state = self._printer["state"]
