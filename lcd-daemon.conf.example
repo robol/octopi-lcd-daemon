@@ -1,3 +1,4 @@
 [octopi]
 host = 127.0.0.1
 api_key = C2B8D8369DCC4DF1B307CC78AD134B59
+name = My Printer

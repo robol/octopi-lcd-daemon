@@ -1,7 +1,63 @@
-import time, os, sys
+import time, os, sys, threading
 import requests, configparser, json
 
 from . import lcddriver
+
+class OctoPoller(threading.Thread):
+
+    daemon = True
+
+    def __init__(self, host, api_key):
+        threading.Thread.__init__(self)
+
+        self._host = host
+        self._api_key = api_key
+        self._printer = None
+        self._jobs = None
+
+        self._running = True
+        self._interval = 5
+        self._last_update = 0
+
+    def get_printer(self):
+        return self._printer
+
+    def get_jobs(self):
+        return self._jobs
+
+    def get_last_update(self):
+        return self._last_update
+
+    def stop(self):
+        self._running = False
+
+    def run(self):
+        while self._running:
+            time.sleep(self._interval)
+
+            try:
+                job_r = requests.get(
+                    'http://%s/api/job' % self._host,
+                    headers = {
+                        'X-Api-Key': self._api_key
+                    }
+                )
+                jobs = json.loads(job_r.text)
+                self._jobs = jobs
+            except:
+                self._jobs = None
+
+            try:
+                printer_r = requests.get(
+                    'http://%s/api/printer' % self._host,
+                    headers = { 'X-Api-Key': self._api_key }
+                )
+                printer = json.loads(printer_r.text)
+                self._printer = printer
+            except:
+                self._printer = None
+
+            self._last_update = time.time()
 
 class LcdDaemon():
 
@@ -9,8 +65,6 @@ class LcdDaemon():
         self._lcd = lcddriver.lcd()
         self._lcd.lcd_clear()
         self.define_symbols()
-
-        self._last_update = 0
 
         if not os.path.exists('lcd-daemon.conf'):
             print("lcd-daemon.conf not found, aborting!")
@@ -21,6 +75,10 @@ class LcdDaemon():
 
         self._api_key = config['octopi']['api_key']
         self._host = config['octopi']['host']
+        self._name = config['octopi']['name']
+
+        self._poller = OctoPoller(self._host, self._api_key)
+        self._poller.start()
 
     def define_symbols(self):
         # Clock symbol as 0x00
@@ -60,35 +118,9 @@ class LcdDaemon():
             self._lcd.lcd_write(row, lcddriver.Rs)
 
     def update_status(self):
-        now = time.time()
-
-        if now <= self._last_update + 10:
-            return
-
-        try:
-            job_r = requests.get(
-                'http://%s/api/job' % self._host,
-                headers = {
-                    'X-Api-Key': self._api_key
-                }
-            )
-            jobs = json.loads(job_r.text)
-            self._jobs = jobs
-        except:
-            self._jobs = None
-
-        try:
-            printer_r = requests.get(
-                'http://%s/api/printer' % self._host,
-                headers = { 'X-Api-Key': self._api_key }
-            )
-            printer = json.loads(printer_r.text)
-            self._printer = printer
-        except:
-            self._printer = None
-
-        self._last_update = now
-
+        self._printer = self._poller.get_printer()
+        self._jobs = self._poller.get_jobs()
+        self._last_update = self._poller.get_last_update()
 
     def set_message(self, row, msg):
         # print("ROW = %d, %s" % (row, msg))
@@ -104,7 +136,7 @@ class LcdDaemon():
         progress = None
 
         if self._printer is None:
-            self.set_message(1, "Oleandri Printer")
+            self.set_message(1, self._name)
             dots = "." * (counter + 1)
             spaces = " " * (2 - counter)
             self.set_message(2, spaces + dots + " starting " + dots)
@@ -138,7 +170,7 @@ class LcdDaemon():
             if counter == 0:
                 self.set_message(1, self._printer["state"]["text"].center(16, ' '))
             else:
-                self.set_message(1, "Oleandri Printer")
+                self.set_message(1, self._name)
 
         temps = self._printer["temperature"]
 
