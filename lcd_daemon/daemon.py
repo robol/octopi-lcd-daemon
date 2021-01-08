@@ -10,6 +10,8 @@ class LcdDaemon():
         self._lcd.lcd_clear()
         self.define_symbols()
 
+        self._last_update = 0
+
         if not os.path.exists('lcd-daemon.conf'):
             print("lcd-daemon.conf not found, aborting!")
             sys.exit(1)
@@ -47,7 +49,12 @@ class LcdDaemon():
         for row in rows:
             self._lcd.lcd_write(row, lcddriver.Rs)
 
-    def update_jobs(self):
+    def update_status(self):
+        now = time.time()
+
+        if now <= self._last_update + 10:
+            return
+
         try:
             job_r = requests.get(
                 'http://%s/api/job' % self._host,
@@ -60,7 +67,6 @@ class LcdDaemon():
         except:
             self._jobs = None
 
-    def update_printer(self):
         try:
             printer_r = requests.get(
                 'http://%s/api/printer' % self._host,
@@ -71,6 +77,8 @@ class LcdDaemon():
         except:
             self._printer = None
 
+        self._last_update = now
+
 
     def set_message(self, row, msg):
         # print("ROW = %d, %s" % (row, msg))
@@ -78,10 +86,10 @@ class LcdDaemon():
         self._lcd.lcd_display_string(msg, row)
 
     def update(self):
-        self.update_jobs()
-        self.update_printer()
+        self.update_status()
 
         counter = int(time.time() / 8) % 3
+        scroll_counter = int(time.time() * 2)
 
         progress = None
 
@@ -100,6 +108,7 @@ class LcdDaemon():
             if printTimeLeft is None:
                 printTimeLeftS = "N/A"
             else:
+                printTimeLeft = round(printTimeLeft - time.time() + self._last_update)
                 if printTimeLeft < 60:
                     printTimeLeftS = str(printTimeLeft) + "s"
                 elif printTimeLeft < 3600:
