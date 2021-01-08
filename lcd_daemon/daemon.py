@@ -44,6 +44,16 @@ class LcdDaemon():
                 0b00000 ]
         self.save_symbol(0x08, deg)
 
+        # Thermometer
+        self.save_symbol(0x08 * 2,
+            [ 0x04, 0x0A, 0x0A, 0x0A, \
+              0x11, 0x11, 0x0E, 0x00 ])
+
+        # Heater
+        self.save_symbol(0x08 * 3,
+           [ 0x00, 0x1F, 0x15, 0x11, \
+             0x15, 0x1F, 0x00, 0x00 ])
+
     def save_symbol(self, address, rows):
         self._lcd.lcd_write(address | lcddriver.LCD_SETCGRAMADDR)
         for row in rows:
@@ -138,9 +148,9 @@ class LcdDaemon():
             tool_target = temps["tool0"]["target"]
             bed_target = temps["bed"]["target"]
             if counter == 0:
-                self.set_message(2, "Tool: %3.0f\x01%s" % (tool_temp, '' if tool_target in [ None, 0.0 ] else '/%3.0f\x01' % tool_target))
+                self.set_message(2, "\x02 %3.0f\x01%s" % (tool_temp, '' if tool_target in [ None, 0.0 ] else '/%3.0f\x01' % tool_target))
             elif counter == 1:
-                self.set_message(2, "Bed: %2.1f\x01%s" % (bed_temp, '' if bed_target in [ None, 0.0 ] else '/%2.1f\x01' % bed_target))
+                self.set_message(2, "\x03 %2.1f\x01%s" % (bed_temp, '' if bed_target in [ None, 0.0 ] else '/%2.1f\x01' % bed_target))
             else:
                 if progress is not None:
                     nboxes = round(progress["completion"] / 100.0 * 15.0) + 1
