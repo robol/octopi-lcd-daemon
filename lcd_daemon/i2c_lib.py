@@ -1,7 +1,7 @@
 ﻿import smbus
 from time import *
 
-rate = 115200
+rate = 400000
 
 class i2c_device:
    def __init__(self, addr, port=0):
