@@ -123,7 +123,6 @@ class LcdDaemon():
         self._last_update = self._poller.get_last_update()
 
     def set_message(self, row, msg):
-        # print("ROW = %d, %s" % (row, msg))
         msg = msg + " " * (16 - len(msg))
         self._lcd.lcd_display_string(msg, row)
 
@@ -198,4 +197,3 @@ class LcdDaemon():
                     self.set_message(2, "No print started")
         except:
             return
-

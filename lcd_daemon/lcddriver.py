@@ -1,6 +1,9 @@
 from . import i2c_lib
 from time import *
 
+# rate
+rate = 115200
+
 # LCD Address
 ADDRESS = 0x27
 
@@ -69,9 +72,9 @@ class lcd:
    # clocks EN to latch command
    def lcd_strobe(self, data):
       self.lcd_device.write_cmd(data | En | LCD_BACKLIGHT)
-      sleep(.0005)
+      sleep(1 / rate)
       self.lcd_device.write_cmd(((data & ~En) | LCD_BACKLIGHT))
-      sleep(.0001)
+      sleep(1 / rate)
 
    def lcd_write_four_bits(self, data):
       self.lcd_device.write_cmd(data | LCD_BACKLIGHT)

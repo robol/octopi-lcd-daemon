@@ -1,6 +1,8 @@
 ﻿import smbus
 from time import *
 
+rate = 115200
+
 class i2c_device:
    def __init__(self, addr, port=0):
       self.addr = addr
@@ -9,17 +11,17 @@ class i2c_device:
 # Write a single command
    def write_cmd(self, cmd):
       self.bus.write_byte(self.addr, cmd)
-      sleep(0.0001)
+      sleep(1 / rate)
 
 # Write a command and argument
    def write_cmd_arg(self, cmd, data):
       self.bus.write_byte_data(self.addr, cmd, data)
-      sleep(0.0001)
+      sleep(1 / rate)
 
 # Write a block of data
    def write_block_data(self, cmd, data):
       self.bus.write_block_data(self.addr, cmd, data)
-      sleep(0.0001)
+      sleep(1 / rate)
 
 # Read a single byte
    def read(self):
@@ -32,4 +34,3 @@ class i2c_device:
 # Read a block of data
    def read_block_data(self, cmd):
       return self.bus.read_block_data(self.addr, cmd)
-      

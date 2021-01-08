@@ -11,5 +11,11 @@ if __name__ == "__main__":
     daemon = LcdDaemon()
 
     while True:
+        tm = time.time()
         daemon.update()
-        time.sleep(.9)
+        tm = time.time() - tm
+
+        # To make the clock looks nicer, we try to
+        # push updates once per second, so we
+        # schedule the next call accordingly.
+        time.sleep(1 - tm)
