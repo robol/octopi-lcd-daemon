@@ -1,6 +1,7 @@
-#!/usr/bin/env python3
+import time, os, sys
+import requests, configparser, json
 
-import requests, time, json, lcddriver, configparser, sys, os
+from . import lcddriver
 
 class LcdDaemon():
 
@@ -145,11 +146,3 @@ class LcdDaemon():
         except:
             return
 
-
-if __name__ == "__main__":
-
-    daemon = LcdDaemon()
-
-    while True:
-        daemon.update()
-        time.sleep(1.5)

@@ -1,4 +1,4 @@
-import i2c_lib
+from . import i2c_lib
 from time import *
 
 # LCD Address

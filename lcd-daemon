@@ -1,0 +1,15 @@
+#!/usr/bin/env python3
+
+import sys, os, time
+import requests, json, configparser
+from lcd_daemon import lcddriver
+
+from lcd_daemon.daemon import LcdDaemon
+
+if __name__ == "__main__":
+
+    daemon = LcdDaemon()
+
+    while True:
+        daemon.update()
+        time.sleep(1.5)
