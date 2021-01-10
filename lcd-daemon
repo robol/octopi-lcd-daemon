@@ -18,4 +18,4 @@ if __name__ == "__main__":
         # To make the clock looks nicer, we try to
         # push updates once per second, so we
         # schedule the next call accordingly.
-        time.sleep(1 - tm)
+        time.sleep(max(0, 1 - tm))

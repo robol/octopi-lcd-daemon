@@ -163,7 +163,10 @@ class LcdDaemon():
                     printTimeLeftS = "%d:%2s:%2s" % (hours, str(mins).zfill(2), str(secs).zfill(2))
 
             printTimeLeftS = "\x00 " + printTimeLeftS
-            progress_msg = "%2.1f%% %s" % (progress["completion"], printTimeLeftS.rjust(10))
+            if isinstance(progress["completion"], float):
+                progress_msg = "%2.1f%% %s" % (progress["completion"], printTimeLeftS.rjust(10))
+            else:
+                progress_msg = ""
             self.set_message(1, progress_msg)
         else:
             if counter == 0:
